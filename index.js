@@ -55,11 +55,27 @@ async function fetchOrganizationMembers() {
   return fetchData(membersUrl); // Verwenden der fetchData Funktion, um die Mitglieder abzurufen
 }
 
+// Funktion zum Abrufen der Repositories eines spezifischen Nutzers
+async function fetchUserRepositories(login) {
+  const repositoriesUrl = `https://api.github.com/users/${login}/repos`;
+  return fetchData(repositoriesUrl); // Verwenden der fetchData Funktion, um die Repositories abzurufen
+}
+
 // Definieren der Route für die Mitglieder der Organisation
 app.get('/members', async (req, res) => {
   try {
     const members = await fetchOrganizationMembers();
     res.json(members);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Definieren der Route für die Repositories eines Nutzers
+app.get('/repos/:login', async (req, res) => {
+  try {
+    const repos = await fetchUserRepositories(req.params.login);
+    res.json(repos);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
