@@ -1,5 +1,6 @@
-// Importieren von Express
+// Importieren von Express und dotenv
 const express = require('express');
+require('dotenv').config(); // Laden der Umgebungsvariablen aus der .env Datei
 
 // Initialisieren der Express-Anwendung
 const app = express();
