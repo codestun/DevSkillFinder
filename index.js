@@ -10,7 +10,6 @@ const port = 3000;
 // Optionen für die HTTPS-Anfrage
 const options = {
   hostname: 'api.github.com', // Hostname der API
-  path: '/orgs/codecentric/members', // Pfad zur Ressource
   method: 'GET', // HTTP-Methode
   headers: {
     'User-Agent': 'devskillfinder', // Erforderlich von der GitHub API
@@ -19,10 +18,10 @@ const options = {
 };
 
 // Funktion zum Abrufen von Daten von einer URL
-function fetchData() {
+function fetchData(url) {
   return new Promise((resolve, reject) => {
     // Erstellen der HTTPS-Anfrage
-    const req = https.request(options, (res) => {
+    const req = https.request(url, options, (res) => {
       let data = ''; // Variable zum Akkumulieren der Antwortdaten
 
       // Event-Listener für den Empfang von Datenstücken
@@ -50,11 +49,20 @@ function fetchData() {
   });
 }
 
-/// Definieren der Route für die Root-URL
-app.get('/', (req, res) => {
-  fetchData()
-    .then(data => res.json(data)) // Erfolgreiche Antwort als JSON senden
-    .catch(error => res.status(500).json({ error: error.message })); // Fehlerantwort senden
+// Funktion zum Abrufen der Mitglieder der codecentric-Organisation
+async function fetchOrganizationMembers() {
+  const membersUrl = 'https://api.github.com/orgs/codecentric/members';
+  return fetchData(membersUrl); // Verwenden der fetchData Funktion, um die Mitglieder abzurufen
+}
+
+// Definieren der Route für die Mitglieder der Organisation
+app.get('/members', async (req, res) => {
+  try {
+    const members = await fetchOrganizationMembers();
+    res.json(members);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // Starten des Servers
