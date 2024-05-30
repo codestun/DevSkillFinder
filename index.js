@@ -50,9 +50,11 @@ function fetchData() {
   });
 }
 
-// Definieren der Standardroute
+/// Definieren der Route für die Root-URL
 app.get('/', (req, res) => {
-  res.send('Hello World!');
+  fetchData()
+    .then(data => res.json(data)) // Erfolgreiche Antwort als JSON senden
+    .catch(error => res.status(500).json({ error: error.message })); // Fehlerantwort senden
 });
 
 // Starten des Servers
