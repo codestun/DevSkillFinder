@@ -84,6 +84,21 @@ async function fetchUserLanguages(login) {
   return Array.from(languages);
 }
 
+// Funktion zum Filtern der Mitglieder nach einer Programmiersprache
+async function fetchMembersByLanguage(language) {
+  const members = await fetchOrganizationMembers();
+  const matchingMembers = [];
+
+  for (const member of members) {
+    const userLanguages = await fetchUserLanguages(member.login);
+    if (userLanguages.includes(language)) {
+      matchingMembers.push(member);
+    }
+  }
+
+  return matchingMembers;
+}
+
 // Definieren der Route für die Mitglieder der Organisation
 app.get('/members', async (req, res) => {
   try {
