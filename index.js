@@ -69,6 +69,21 @@ async function fetchRepositoryLanguages(login, repo) {
   return fetchData(languagesUrl); // Verwenden der fetchData Funktion, um die Programmiersprachen abzurufen
 }
 
+// Funktion zum Abrufen aller Programmiersprachen eines Nutzers
+async function fetchUserLanguages(login) {
+  const repos = await fetchUserRepositories(login);
+  const languages = new Set();
+
+  for (const repo of repos) {
+    const repoLanguages = await fetchRepositoryLanguages(login, repo.name);
+    for (const lang in repoLanguages) {
+      languages.add(lang);
+    }
+  }
+
+  return Array.from(languages);
+}
+
 // Definieren der Route für die Mitglieder der Organisation
 app.get('/members', async (req, res) => {
   try {
@@ -93,6 +108,7 @@ app.get('/repos/:login', async (req, res) => {
 app.get('/languages/:login/:repo', async (req, res) => {
   try {
     const languages = await fetchRepositoryLanguages(req.params.login, req.params.repo);
+    console.log(`User ${req.params.login} languages:`, languages);
     res.json(languages);
   } catch (error) {
     res.status(500).json({ error: error.message });
