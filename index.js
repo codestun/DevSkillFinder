@@ -5,7 +5,7 @@ require('dotenv').config(); // Laden der Umgebungsvariablen aus der .env Datei
 
 // Initialisieren der Express-Anwendung
 const app = express();
-const port = 3000;
+const port = 3000; // Definieren des Ports, auf dem der Server Anfragen annimmt
 
 // Optionen für die HTTPS-Anfrage
 const options = {
@@ -29,7 +29,7 @@ function fetchData(url) {
         data += chunk; // Jedes empfangene Datenstück hinzufügen
       });
 
-      // Event-Listener für das Ende der Datenübertragung
+      // Event-Listener für das Ende der Datenübertragungs
       res.on('end', () => {
         try {
           const parsedData = JSON.parse(data); // Parsen der akkumulierten Daten als JSON
@@ -61,6 +61,14 @@ async function fetchUserRepositories(login) {
   return fetchData(repositoriesUrl); // Verwenden der fetchData Funktion, um die Repositories abzurufen
 }
 
+// Funktion zum Abrufen der Programmiersprachen eines spezifischen Repositories
+async function fetchRepositoryLanguages(login, repo) {
+  const repositoriesUrl = `https://api.github.com/repos/${login}/${repo}`;
+  const repositoryData = await fetchData(repositoriesUrl);
+  const languagesUrl = repositoryData.languages_url;
+  return fetchData(languagesUrl); // Verwenden der fetchData Funktion, um die Programmiersprachen abzurufen
+}
+
 // Definieren der Route für die Mitglieder der Organisation
 app.get('/members', async (req, res) => {
   try {
@@ -76,6 +84,16 @@ app.get('/repos/:login', async (req, res) => {
   try {
     const repos = await fetchUserRepositories(req.params.login);
     res.json(repos);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Definieren der Route für die Programmiersprachen eines Repositories
+app.get('/languages/:login/:repo', async (req, res) => {
+  try {
+    const languages = await fetchRepositoryLanguages(req.params.login, req.params.repo);
+    res.json(languages);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
